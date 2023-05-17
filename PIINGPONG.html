@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ping Pong Game</title>
+	<h1>Rehan Training</h1> <center> <space>
+	<h3>PING PONG GAME BY ZULFIQAR</h2> <center>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #ff6699, #9933cc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        canvas {
+            border: 2px solid white;
+        }
+
+        .score {
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="score">
+        <span id="playerAScore">0</span> : <span id="playerBScore">0</span>
+    </div>
+    <canvas id="pong" width="1000" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById("pong");
+        const context = canvas.getContext("2d");
+
+        // Paddle and ball variables
+        const paddleWidth = 10, paddleHeight = 100;
+        const playerA = { x: 0, y: canvas.height / 2 - paddleHeight / 2, width: paddleWidth, height: paddleHeight, color: "#fff", dy: 8, score: 0 };
+        const playerB = { x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, width: paddleWidth, height: paddleHeight, color: "#fff", dy: 4, score: 0 };
+        const ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 10, speed: 4, dx: 4, dy: 4, color: "#fff" };
+
+        // Move the paddles
+        function movePaddle(event) {
+            const key = event.keyCode;
+
+            switch (key) {
+                // Player A controls
+                case 87: // W key
+                    playerA.y -= playerA.dy;
+                    break;
+                case 83: // S key
+                    playerA.y += playerA.dy;
+                    break;
+
+                // Player B controls
+                case 38: // Up arrow key
+                    playerB.y -= playerB.dy;
+                    break;
+                case 40: // Down arrow key
+                    playerB.y += playerB.dy;
+                    break;
+            }
+        }
+
+        // Update the ball's position
+        function updateBall() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Check for collision with paddles
+            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+                ball.dy *= -1;
+            }
+
+            if (ball.x + ball.radius > canvas.width) {
+                playerAScore.innerText = ++playerA.score;
+                resetBall();
+            }
+
+            if (ball.x - ball.radius < 0) {
+                playerBScore.innerText = ++playerB.score;
+                resetBall();
+            }
+
+            // Handle paddle collision
+            if (
+                ball.y + ball.radius > playerA.y &&
+                ball.y - ball.radius < playerA.y + playerA.height &&
+                ball.dx < 0
+            ) {
+                ball.dx = -ball.dx;
+            }
+
+            if (
+                ball.y + ball.radius > playerB.y &&
+                ball.y - ball.radius < playerB.y + playerB.height &&
+                ball.dx > 0
+           ) {
+		ball.dx = -ball.dx;
+	     }
+	}
+
+	       // Reset the ball's position
+    function resetBall() {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx = -ball.dx;
+        ball.dy = -ball.dy;
+
+        if (playerA.score === 10 || playerB.score === 10) {
+            endGame();
+        }
+    }
+
+    // Update the paddle's position
+    function updatePaddle(paddle) {
+        if (paddle.y < 0) {
+            paddle.y = 0;
+        }
+
+        if (paddle.y + paddle.height > canvas.height) {
+            paddle.y = canvas.height - paddle.height;
+        }
+    }
+
+    // Render the game
+    function render() {
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Render the pong ball
+        context.beginPath();
+        context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        context.fillStyle = ball.color;
+        context.fill();
+        context.closePath();
+
+        // Render the paddles
+        context.fillStyle = playerA.color;
+        context.fillRect(playerA.x, playerA.y, playerA.width, playerA.height);
+
+        context.fillStyle = playerB.color;
+        context.fillRect(playerB.x, playerB.y, playerB.width, playerB.height);
+
+        // Update the ball and paddles
+        updateBall();
+        updatePaddle(playerA);
+        updatePaddle(playerB);
+
+        // Request animation frame
+        requestAnimationFrame(render);
+    }
+
+    // End the game and display the winner
+    function endGame() {
+        document.removeEventListener("keydown", movePaddle);
+        let winner = playerA.score === 5 ? "Player A" : "Player B";
+        alert(`${winner} wins the game!`);
+    }
+
+    // Event listeners
+    document.addEventListener("keydown", movePaddle);
+
+    // Start the game
+    render();
+
+</script>
+</body>
+</html>
